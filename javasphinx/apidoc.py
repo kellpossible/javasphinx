@@ -125,6 +125,8 @@ def write_documents(documents, sources, opts):
 
         index.sort()
         for filebasename in index:
+            if "-Source" in filebasename:
+                continue
             toc.add_content(filebasename + '\n')
 
         package_path = package.replace('.', os.sep)
@@ -190,6 +192,35 @@ def generate_from_source_file(doc_compiler, source_file, cache_dir):
         documents = doc_compiler.compile(ast)
     except Exception:
         util.unexpected('Unexpected exception while compiling %s', source_file)
+
+    documents_addition = {}
+    for fullname in documents:
+        document_name = documents[fullname][1] + "-Source"
+        doc = util.Document()
+        doc.add_heading(documents[fullname][1] + " Source", '=')
+        doc_root_path = os.path.abspath('.')
+        file_path = os.path.join("/", os.path.relpath(source_file))
+            
+
+        litinc = util.Directive('literalinclude', file_path)
+        litinc.add_option('language', 'java')
+        doc.add_object(litinc)
+
+        documents_addition[fullname + ".source"] = (documents[fullname][0], document_name, doc.build())
+
+        doc = util.Document()
+        toc = util.Directive('toctree')
+        toc.add_option('maxdepth', '1')
+        document_name_index = document_name.replace(".", "-")
+        toc.add_content(document_name_index + "\n")
+        doc.add_object(toc)
+
+        document = documents[fullname]
+        content = document[2]
+        content = content + "\n" + doc.build()
+        documents[fullname]= (document[0], document[1], content)
+
+    documents.update(documents_addition)
 
     if cache_file:
         dump_file = open(cache_file, 'wb')
