@@ -213,6 +213,7 @@ def generate_from_source_file(doc_compiler, source_file, cache_dir):
         toc.add_option('maxdepth', '1')
         document_name_index = document_name.replace(".", "-")
         toc.add_content(document_name_index + "\n")
+        doc.add_heading("View Source Code", '-')
         doc.add_object(toc)
 
         document = documents[fullname]
