@@ -187,7 +187,7 @@ class JavaObject(ObjectDescription):
 
         indextext = self.get_index_text(package, type, name)
         if indextext:
-            self.indexnode['entries'].append(('single', indextext, fullname, ''))
+            self.indexnode['entries'].append(('single', indextext, fullname, '', ''))
 
     def before_content(self):
         self.set_type = False
@@ -425,7 +425,7 @@ class JavaPackage(Directive):
             ret.append(targetnode)
 
             indextext = _('%s (package)') % (package,)
-            inode = addnodes.index(entries=[('single', indextext, 'package-' + package, '')])
+            inode = addnodes.index(entries=[('single', indextext, 'package-' + package, '', '')])
             ret.append(inode)
 
         return ret
