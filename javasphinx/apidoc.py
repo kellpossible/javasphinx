@@ -108,8 +108,8 @@ def write_documents(documents, sources, opts):
             if source_mod_time < dest_mod_time:
                 continue
 
-        f = open(fullpath, 'w')
-        f.write(document)
+        f = open(fullpath, 'wb')
+        f.write(document.encode("utf8"))
         f.close()
 
     # Write package-index for each package
