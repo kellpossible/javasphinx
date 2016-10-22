@@ -449,6 +449,7 @@ class JavaImport(Directive):
         env.temp_data.setdefault('java:imports', dict())[typename] = package
         return []
 
+
 class JavaXRefRole(XRefRole):
     def process_link(self, env, refnode, has_explicit_title, title, target):
         refnode['java:outertype'] = '.'.join(env.temp_data.get('java:outertype', list()))
@@ -483,6 +484,9 @@ class JavaXRefRole(XRefRole):
 
         return title, target
 
+class JavaExtDocXRefRole(JavaXRefRole):
+    pass
+
 class JavaDomain(Domain):
     """Java language domain."""
     name = 'java'
@@ -512,6 +516,7 @@ class JavaDomain(Domain):
         'construct': JavaXRefRole(),
         'meth':      JavaXRefRole(),
         'ref':       JavaXRefRole(),
+        'extdoc':    JavaExtDocXRefRole()
     }
 
     initial_data = {
@@ -531,38 +536,41 @@ class JavaDomain(Domain):
         imported = node.get('java:imported')
         type_context = node.get('java:outertype')
 
+        print("xref type", typ)
+
         # Partial function to make building the response easier
         make_ref = lambda fullname: make_refnode(builder, fromdocname, objects[fullname][0], fullname, contnode, fullname)
 
-        # Check for fully qualified references
-        if target in objects:
-            return make_ref(target)
+        if typ != 'extdoc':
+            # Check for fully qualified references
+            if target in objects:
+                return make_ref(target)
 
-        # Try with package name prefixed
-        if package:
-            fullname = package + '.' + target
-            if fullname in objects:
-                return make_ref(fullname)
+            # Try with package name prefixed
+            if package:
+                fullname = package + '.' + target
+                if fullname in objects:
+                    return make_ref(fullname)
 
-        # Try with package and type prefixed
-        if package and type_context:
-            fullname = package + '.' + type_context + '.' + target
-            if fullname in objects:
-                return make_ref(fullname)
+            # Try with package and type prefixed
+            if package and type_context:
+                fullname = package + '.' + type_context + '.' + target
+                if fullname in objects:
+                    return make_ref(fullname)
 
-        # Try to find a matching suffix
-        suffix = '.' + target
-        basename_match = None
-        basename_suffix = suffix.partition('(')[0]
+            # Try to find a matching suffix
+            suffix = '.' + target
+            basename_match = None
+            basename_suffix = suffix.partition('(')[0]
 
-        for fullname, (_, _, basename) in objects.items():
-            if fullname.endswith(suffix):
-                return make_ref(fullname)
-            elif basename.endswith(basename_suffix):
-                basename_match = fullname
+            for fullname, (_, _, basename) in objects.items():
+                if fullname.endswith(suffix):
+                    return make_ref(fullname)
+                elif basename.endswith(basename_suffix):
+                    basename_match = fullname
 
-        if basename_match:
-            return make_ref(basename_match)
+            if basename_match:
+                return make_ref(basename_match)
 
         # Try creating an external documentation reference
         ref = extdoc.get_javadoc_ref(self.env, target, target, fromdocname, package)

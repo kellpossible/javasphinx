@@ -116,27 +116,3 @@ def get_javadoc_ref(app, rawtext, text, fromdocname, src_package):
     node['reftitle'] = title
 
     return node
-
-def javadoc_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
-    """ Role for linking to external Javadoc """
-
-    has_explicit_title, title, target = split_explicit_title(text)
-    title = utils.unescape(title)
-    target = utils.unescape(target)
-
-    if not has_explicit_title:
-        target = target.lstrip('~')
-
-        if title[0] == '~':
-            title = title[1:].rpartition('.')[2]
-
-    app = inliner.document.settings.env.app
-    print(dir(inliner.document))
-    ref = get_javadoc_ref(app, rawtext, target, 'Libgdx_ATC_Simulator/Prediction_Service/Prediction_Engine', None)
-
-    if not ref:
-         raise ValueError("no Javadoc source found for %s in javadoc_url_map" % (target,))
-
-    ref.append(nodes.Text(title, title))
-
-    return [ref], []
