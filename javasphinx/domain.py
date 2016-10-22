@@ -430,6 +430,7 @@ class JavaPackage(Directive):
 
         return ret
 
+
 class JavaImport(Directive):
     """
     This directive is just to tell Sphinx the source of a referenced type.
@@ -564,7 +565,7 @@ class JavaDomain(Domain):
             return make_ref(basename_match)
 
         # Try creating an external documentation reference
-        ref = extdoc.get_javadoc_ref(self.env, target, target)
+        ref = extdoc.get_javadoc_ref(self.env, target, target, fromdocname, package)
 
         if not ref and target in java_dot_lang:
             fulltarget = 'java.lang.' + target

@@ -15,11 +15,12 @@
 #
 
 import re
+import os.path
 
 from docutils import nodes, utils
 from sphinx.util.nodes import split_explicit_title
 
-def get_javadoc_ref(app, rawtext, text):
+def get_javadoc_ref(app, rawtext, text, fromdocname, src_package):
     javadoc_url_map = app.config.javadoc_url_map
 
     # Add default Java SE sources
@@ -35,6 +36,7 @@ def get_javadoc_ref(app, rawtext, text):
     source = None
     package = ''
     method = None
+    location = 'external'
 
     if '(' in text:
         # If the javadoc contains a line like this:
@@ -47,15 +49,30 @@ def get_javadoc_ref(app, rawtext, text):
         except ValueError:
             pass
 
-    for pkg, (baseurl, ext_type) in javadoc_url_map.items():
-        if text.startswith(pkg + '.') and len(pkg) > len(package):
+    for pkg, url_map in javadoc_url_map.items():
+        baseurl = url_map[0]
+        ext_type = url_map[1]
+
+        if len(url_map) > 2:
+            location = url_map[2]
+
+        test_text = text
+        if src_package is not None:
+            if not test_text.startswith(pkg + '.'):
+                test_text = src_package + '.' + test_text
+
+        if test_text.startswith(pkg + '.') and len(pkg) > len(package):
             source = baseurl, ext_type
-            package = pkg
+            text = test_text
 
     if not source:
         return None
 
     baseurl, ext_type = source
+
+    if location == 'local':
+        fromdocpath = os.path.dirname(fromdocname)
+        baseurl = os.path.relpath(baseurl, fromdocpath)
 
     package_parts = []
     cls_parts = []
@@ -114,7 +131,8 @@ def javadoc_role(name, rawtext, text, lineno, inliner, options={}, content=[]):
             title = title[1:].rpartition('.')[2]
 
     app = inliner.document.settings.env.app
-    ref = get_javadoc_ref(app, rawtext, target)
+    print(dir(inliner.document))
+    ref = get_javadoc_ref(app, rawtext, target, 'Libgdx_ATC_Simulator/Prediction_Service/Prediction_Engine', None)
 
     if not ref:
          raise ValueError("no Javadoc source found for %s in javadoc_url_map" % (target,))
