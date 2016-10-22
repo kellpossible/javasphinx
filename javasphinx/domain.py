@@ -536,8 +536,6 @@ class JavaDomain(Domain):
         imported = node.get('java:imported')
         type_context = node.get('java:outertype')
 
-        print("xref type", typ)
-
         # Partial function to make building the response easier
         make_ref = lambda fullname: make_refnode(builder, fromdocname, objects[fullname][0], fullname, contnode, fullname)
 
