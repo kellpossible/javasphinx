@@ -19,7 +19,7 @@ from setuptools import setup
 setup(
     name = "javasphinx",
     packages = ["javasphinx"],
-    version = "0.9.13",
+    version = "0.9.14",
     author = "Chris Thunes",
     author_email = "cthunes@brewtab.com",
     url = "http://github.com/bronto/javasphinx",
@@ -33,7 +33,14 @@ setup(
         "Intended Audience :: Developers",
         "Topic :: Software Development :: Libraries"
         ],
-    install_requires=["javalang>=0.10.0", "lxml", "beautifulsoup4", "future"],
+    install_requires=[
+        "javalang>=0.10.1",
+        "lxml",
+        "beautifulsoup4",
+        "future",
+        "docutils",
+        "sphinx"
+    ],
     entry_points={
         'console_scripts': [
             'javasphinx-apidoc = javasphinx.apidoc:main'
